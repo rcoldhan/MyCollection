@@ -12,7 +12,7 @@ public class MyCollection<E> implements Collection<E> {
     private Object[] elementData = new Object[10];
 
     @Override
-    public boolean add(E e) {
+    public final boolean add(final E e) {
         if (size == elementData.length) {
             elementData = Arrays.copyOf(elementData, (int) (size * 1.5f));
         }
@@ -21,39 +21,32 @@ public class MyCollection<E> implements Collection<E> {
     }
 
     @Override
-    public int size() {
+    public final int size() {
         return this.size;
     }
 
     @Override
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         return false;
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public final Iterator<E> iterator() {
         return new MyIterator<>();
     }
 
-    /**
-     * проверяет, что такой объект содержится в коллекции (сравнение с помощью метода equals).
-     * Если такой объект найден, возвращает true, если нет - false.
-     */
     @Override
-    public boolean contains(Object o) {
-        for (Object object : elementData) {
-            if (object.equals(o)) {
+    public final boolean contains(final Object o) {
+        for (int i = 0; i < size(); i++) {
+            if (elementData[i].equals(o)) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * возвращает все элементы коллекции в качестве Object[].
-     */
     @Override
-    public Object[] toArray() {
+    public final Object[] toArray() {
         if (size() != 0) {
             return Arrays.copyOf(elementData, size());
         } else {
@@ -71,77 +64,81 @@ public class MyCollection<E> implements Collection<E> {
      * элементами коллекции и вернуть его.
      */
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <T> T[] toArray(final T[] a) {
         return null;
     }
 
-    /**
-     * удалить первый элемент, равным переданному объекту (сравнение с помощью метода equals).
-     * Если такой объект найден и удален, возвращает true, если нет - false.
-     */
     @Override
-    public boolean remove(Object o) {
-        for (int i = 0; i < size(); i++) {
-            if (elementData[i].equals(o)) {
-                if (size() - 1 - i >= 0) {
-                    System.arraycopy(elementData, i + 1, elementData, i, size() - 1 - i);
-                    size--;
-                }
+    public final boolean remove(final Object o) {
+        Iterator<?> it = this.iterator();
+        while (it.hasNext()) {
+            if (it.next().equals(o)) {
+                it.remove();
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     * проверяет, что все элементы переданной коллекции содержатся в коллекции
-     * (сравнение с помощью метода equals).
-     * Если все элементы найдены, возвращает true, если нет - false.
-     */
     @Override
-    public boolean containsAll(Collection<?> c) {
-        Iterator<?> it = c.iterator();
-        for (Object object : elementData) {
-                if (it.next().equals(object)) {
-                    return true;
+    public final boolean containsAll(final Collection<?> c) {
+        boolean isContains;
+        for (Object o : c) {
+            isContains = false;
+            for (int i = 0; i < size(); i++) {
+                if (elementData[i].equals(o)) {
+                    isContains = true;
+                    break;
                 }
             }
-        return false;
+            if (!isContains) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    /**
-     * добавить все элементы переданной коллекции, если добавились, вернуть true.
-     * В нашем случае всегда true.
-     */
     @Override
-    public boolean addAll(Collection<? extends E> c) {
-        return false;
+    public final boolean addAll(final Collection<? extends E> c) {
+        for (E e : c) {
+            if (!add(e)) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    /**
-     * удалить все элементы переданной коллекции из нашей коллекции
-     * (сравнение с помощью метода equals).
-     * Если хотя бы один объект найден и удален, возвращает true, если нет - false.
-     */
     @Override
-    public boolean removeAll(Collection<?> c) {
-        return false;
+    public final boolean removeAll(final Collection<?> c) {
+        boolean wasRemoved = false;
+        for (Object o : c) {
+            if (this.remove(o)) {
+                wasRemoved = true;
+                while (true) {
+                    if (!this.remove(o)) {
+                        break;
+                    }
+                }
+            }
+        }
+        return wasRemoved;
     }
 
-    /**
-     * оставить в нашей коллекции только элементы переданной коллекции.
-     * Если коллекция осталась неизменной, вернуть false, иначе - true.
-     */
     @Override
-    public boolean retainAll(Collection<?> c) {
-        return false;
+    public final boolean retainAll(final Collection<?> c) {
+        Iterator<?> it = this.iterator();
+        boolean wasChanged = false;
+        while (it.hasNext()) {
+            if (!c.contains(it.next())) {
+                it.remove();
+                wasChanged = true;
+            }
+        }
+        return wasChanged;
     }
 
-    /**
-     * очистить коллекцию.
-     */
     @Override
-    public void clear() {
+    public final void clear() {
         for (int i = 0; i < size(); i++) {
             elementData[i] = null;
             size = 0;
@@ -150,7 +147,8 @@ public class MyCollection<E> implements Collection<E> {
 
     private class MyIterator<T> implements Iterator<T> {
 
-        int cursor = 0;
+        private int cursor = 0;
+        private int lastRet = -1;
 
         @Override
         public boolean hasNext() {
@@ -163,18 +161,21 @@ public class MyCollection<E> implements Collection<E> {
             if (cursor >= size) {
                 throw new NoSuchElementException();
             }
-            return (T) elementData[cursor++];
+            lastRet = cursor++;
+            return (T) elementData[lastRet];
         }
 
-        /**
-         * удалит элемент, который был в последний раз получен методом next().
-         * Если метод next() еще не был вызван, возвращает java.util.IllegalStateException.
-         * Если вызвать метод remove() два раз подряд, возвращает java.util.IllegalStateException,
-         * так как элемент уже удален. Для корректного удаление необходимо опять вызвать метод next().
-         */
         @Override
         public void remove() {
-            throw new UnsupportedOperationException("remove");
+            if (lastRet == -1) {
+                throw new IllegalStateException();
+            }
+            if (lastRet < size - 1) {
+                System.arraycopy(elementData, lastRet + 1, elementData, lastRet, size - 1 - lastRet);
+            }
+            size--;
+            lastRet = -1;
+            cursor--;
         }
     }
 }

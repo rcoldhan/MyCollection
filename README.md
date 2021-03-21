@@ -42,7 +42,7 @@ boolean contains(Object o)
 boolean containsAll(Collection<?> c)
 ```
 * проверяет, что все элементы переданной коллекции содержатся в коллекции (сравнение с помощью метода **equals**).  
-Eсли все элементы найдены, возвращает **true**, если нет - **false**.  
+Если все элементы найдены, возвращает **true**, если нет - **false**.  
 ```java
 boolean addAll(Collection<? extends E> c)
 ```
