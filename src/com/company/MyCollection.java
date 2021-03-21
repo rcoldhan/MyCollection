@@ -3,6 +3,7 @@ package com.company;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class MyCollection<E> implements Collection<E> {
 
@@ -34,48 +35,146 @@ public class MyCollection<E> implements Collection<E> {
         return new MyIterator<>();
     }
 
+    /**
+     * проверяет, что такой объект содержится в коллекции (сравнение с помощью метода equals).
+     * Если такой объект найден, возвращает true, если нет - false.
+     */
     @Override
     public boolean contains(Object o) {
+        for (Object object : elementData) {
+            if (object.equals(o)) {
+                return true;
+            }
+        }
         return false;
     }
 
+    /**
+     * возвращает все элементы коллекции в качестве Object[].
+     */
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        if (size() != 0) {
+            return Arrays.copyOf(elementData, size());
+        } else {
+            return new Object[0];
+        }
     }
 
+    /**
+     * возвращает все элементы коллекции в качестве T[].
+     * Если переданный массив уже заполнен, то значения перепишутся.
+     * Если размер переданного массива меньше размера коллекции, то
+     * метод создает новый массив с типом элементов T и размером, равным размеру коллекции,
+     * заполняет его элементами коллекции и возвращает.
+     * Если размер массива больше размера коллекции, необходимо заменить его первые элементы
+     * элементами коллекции и вернуть его.
+     */
     @Override
     public <T> T[] toArray(T[] a) {
         return null;
     }
 
+    /**
+     * удалить первый элемент, равным переданному объекту (сравнение с помощью метода equals).
+     * Если такой объект найден и удален, возвращает true, если нет - false.
+     */
     @Override
     public boolean remove(Object o) {
+        for (int i = 0; i < size(); i++) {
+            if (elementData[i].equals(o)) {
+                if (size() - 1 - i >= 0) {
+                    System.arraycopy(elementData, i + 1, elementData, i, size() - 1 - i);
+                    size--;
+                }
+                return true;
+            }
+        }
         return false;
     }
 
+    /**
+     * проверяет, что все элементы переданной коллекции содержатся в коллекции
+     * (сравнение с помощью метода equals).
+     * Если все элементы найдены, возвращает true, если нет - false.
+     */
     @Override
     public boolean containsAll(Collection<?> c) {
+        Iterator<?> it = c.iterator();
+        for (Object object : elementData) {
+                if (it.next().equals(object)) {
+                    return true;
+                }
+            }
         return false;
     }
 
+    /**
+     * добавить все элементы переданной коллекции, если добавились, вернуть true.
+     * В нашем случае всегда true.
+     */
     @Override
     public boolean addAll(Collection<? extends E> c) {
         return false;
     }
 
+    /**
+     * удалить все элементы переданной коллекции из нашей коллекции
+     * (сравнение с помощью метода equals).
+     * Если хотя бы один объект найден и удален, возвращает true, если нет - false.
+     */
     @Override
     public boolean removeAll(Collection<?> c) {
         return false;
     }
 
+    /**
+     * оставить в нашей коллекции только элементы переданной коллекции.
+     * Если коллекция осталась неизменной, вернуть false, иначе - true.
+     */
     @Override
     public boolean retainAll(Collection<?> c) {
         return false;
     }
 
+    /**
+     * очистить коллекцию.
+     */
     @Override
     public void clear() {
+        for (int i = 0; i < size(); i++) {
+            elementData[i] = null;
+            size = 0;
+        }
+    }
 
+    private class MyIterator<T> implements Iterator<T> {
+
+        int cursor = 0;
+
+        @Override
+        public boolean hasNext() {
+            return cursor < size;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public T next() {
+            if (cursor >= size) {
+                throw new NoSuchElementException();
+            }
+            return (T) elementData[cursor++];
+        }
+
+        /**
+         * удалит элемент, который был в последний раз получен методом next().
+         * Если метод next() еще не был вызван, возвращает java.util.IllegalStateException.
+         * Если вызвать метод remove() два раз подряд, возвращает java.util.IllegalStateException,
+         * так как элемент уже удален. Для корректного удаление необходимо опять вызвать метод next().
+         */
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("remove");
+        }
     }
 }
