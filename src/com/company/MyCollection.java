@@ -82,16 +82,16 @@ public class MyCollection<E> implements Collection<E> {
 
     @Override
     public final boolean containsAll(final Collection<?> c) {
-        boolean isContains;
+        boolean isContain;
         for (Object o : c) {
-            isContains = false;
+            isContain = false;
             for (int i = 0; i < size(); i++) {
                 if (elementData[i].equals(o)) {
-                    isContains = true;
+                    isContain = true;
                     break;
                 }
             }
-            if (!isContains) {
+            if (!isContain) {
                 return false;
             }
         }
@@ -148,7 +148,7 @@ public class MyCollection<E> implements Collection<E> {
     private class MyIterator<T> implements Iterator<T> {
 
         private int cursor = 0;
-        private int lastRet = -1;
+        private int lastReturn = -1;
 
         @Override
         public boolean hasNext() {
@@ -161,20 +161,20 @@ public class MyCollection<E> implements Collection<E> {
             if (cursor >= size) {
                 throw new NoSuchElementException();
             }
-            lastRet = cursor++;
-            return (T) elementData[lastRet];
+            lastReturn = cursor++;
+            return (T) elementData[lastReturn];
         }
 
         @Override
         public void remove() {
-            if (lastRet == -1) {
+            if (lastReturn == -1) {
                 throw new IllegalStateException();
             }
-            if (lastRet < size - 1) {
-                System.arraycopy(elementData, lastRet + 1, elementData, lastRet, size - 1 - lastRet);
+            if (lastReturn < size - 1) {
+                System.arraycopy(elementData, lastReturn + 1, elementData, lastReturn, size - 1 - lastReturn);
             }
             size--;
-            lastRet = -1;
+            lastReturn = -1;
             cursor--;
         }
     }
