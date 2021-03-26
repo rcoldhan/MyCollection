@@ -62,31 +62,34 @@ public class MyCollection<E> implements Collection<E> {
         }
     }
 
-    /**
-     * возвращает все элементы коллекции в качестве T[].
-     * Если переданный массив уже заполнен, то значения перепишутся.
-     * Если размер переданного массива меньше размера коллекции, то
-     * метод создает новый массив с типом элементов T и размером, равным размеру коллекции,
-     * заполняет его элементами коллекции и возвращает.
-     * Если размер массива больше размера коллекции, необходимо заменить его первые элементы
-     * элементами коллекции и вернуть его.
-     */
     @Override
-    public <T> T[] toArray(final T[] a) {
-        return null;
+    public final <T> T[] toArray(final T[] a) {
+        Iterator<?> it = iterator();
+        if (a.length <= this.size()) {
+            return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+        } else {
+            for (int i = 0; i < a.length; i++) {
+                if (it.hasNext()) {
+                    a[i] = (T) it.next();
+                }
+            }
+        }
+        return a;
     }
 
     @Override
     public final boolean remove(final Object o) {
-        Iterator<?> it = this.iterator();
-        while (it.hasNext()) {
-            if (o != null) {
-                if (it.next() != null && it.next().equals(o)) {
+        Iterator<E> it = iterator();
+        if (o == null) {
+            while (it.hasNext()) {
+                if (it.next() == null) {
                     it.remove();
                     return true;
                 }
-            } else {
-                if (it.next() == null) {
+            }
+        } else {
+            while (it.hasNext()) {
+                if (o.equals(it.next())) {
                     it.remove();
                     return true;
                 }
@@ -134,12 +137,18 @@ public class MyCollection<E> implements Collection<E> {
     @Override
     public final boolean removeAll(final Collection<?> c) {
         boolean wasRemoved = false;
+        Iterator<?> it = iterator();
         for (Object o : c) {
-            if (this.remove(o)) {
-                wasRemoved = true;
-                while (true) {
-                    if (!this.remove(o)) {
-                        break;
+            while (it.hasNext()) {
+                if (o == null) {
+                    if (it.next() == null) {
+                        it.remove();
+                        wasRemoved = true;
+                    }
+                } else {
+                    if (o.equals(it.next())) {
+                        it.remove();
+                        wasRemoved = true;
                     }
                 }
             }
