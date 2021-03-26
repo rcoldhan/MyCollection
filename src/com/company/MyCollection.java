@@ -37,9 +37,17 @@ public class MyCollection<E> implements Collection<E> {
 
     @Override
     public final boolean contains(final Object o) {
-        for (int i = 0; i < size(); i++) {
-            if (elementData[i].equals(o)) {
-                return true;
+        if (o == null) {
+            for (int i = 0; i < size(); i++) {
+                if (elementData[i] == null) {
+                    return true;
+                }
+            }
+        } else {
+            for (int i = 0; i < size(); i++) {
+                if (elementData[i] != null && elementData[i].equals(o)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -72,9 +80,16 @@ public class MyCollection<E> implements Collection<E> {
     public final boolean remove(final Object o) {
         Iterator<?> it = this.iterator();
         while (it.hasNext()) {
-            if (it.next().equals(o)) {
-                it.remove();
-                return true;
+            if (o != null) {
+                if (it.next() != null && it.next().equals(o)) {
+                    it.remove();
+                    return true;
+                }
+            } else {
+                if (it.next() == null) {
+                    it.remove();
+                    return true;
+                }
             }
         }
         return false;
@@ -85,10 +100,18 @@ public class MyCollection<E> implements Collection<E> {
         boolean isContain;
         for (Object o : c) {
             isContain = false;
-            for (int i = 0; i < size(); i++) {
-                if (elementData[i].equals(o)) {
-                    isContain = true;
-                    break;
+            if (o == null) {
+                for (int i = 0; i < size(); i++) {
+                    if (elementData[i] == null) {
+                        return true;
+                    }
+                }
+            } else {
+                for (int i = 0; i < size(); i++) {
+                    if (elementData[i] != null && elementData[i].equals(o)) {
+                        isContain = true;
+                        break;
+                    }
                 }
             }
             if (!isContain) {
